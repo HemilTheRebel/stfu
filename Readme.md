@@ -52,3 +52,10 @@ only once per cycle and sibling test cases will get the same environment.
 Your only interface with this library is the test function and calling
 the runner returned by test function. All other details are inside impl
 namespace and subject to change
+
+# Shout outs
+Huge shout outs to 
+1. [Alan Mellor](https://www.linkedin.com/in/alan-mellor-15177927/) for the code review
+2. Phil Nash and all the contributers for created Catch2. I was stuck in 
+the design of this library when I looked at how catch implements sections 
+which is exactly what I was trying to implement. Thats was a big boost
