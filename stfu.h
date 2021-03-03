@@ -195,21 +195,7 @@ namespace stfu::impl {
 		 * So I have declared the function over here. It will be defined 
 		 * after impl::current_test
 		 */
-		void run();
-
-
-		/**
-		 * Resets test case and all its children as if they are declared
-		 * But never called yet. 
-		 */
-		void reset() {
-			next_child_to_execute = 0;
-			first_execution = true;
-
-			for (std::unique_ptr<test_case> &child : children) {
-				child->reset();
-			}
-		}
+		void run();	    
 		
 
 		/**
@@ -307,10 +293,7 @@ namespace stfu {
 				/// This allows the runner to be called multiple times.
 				/// I dont know why I added this functionality. It is probably
 				/// useful for fuzzing but there you go
-				///
-				/// Note this is not std::unique_ptr::reset.
-				/// This is impl::test_case::reset
-				root->reset();
+				root.reset();
 			};
 		}
 
