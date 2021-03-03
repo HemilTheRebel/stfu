@@ -46,6 +46,7 @@
 #include <vector>
 #include <memory>
 #include <cassert>
+#include <algorithm>
 
 
 /**
@@ -112,12 +113,17 @@ namespace stfu::impl {
 		 * If none exists, return -1
 		 */
 		int index_of(test_case *child) {
-			/// Raw for loop because I need index
-			for (int i = 0; i < children.size(); i++) {
-				std::unique_ptr<test_case> &c = children[i];
-				if (c->name == child->name) {
-					return i;
+			auto it = std::find_if(
+				children.cbegin(),
+				children.cend(),
+				[&] (const std::unique_ptr<test_case> &c) {
+				   return c->name == child->name;
 				}
+			);
+
+			bool child_exists = it != children.cend();
+			if (child_exists) {
+				return it - children.cbegin();
 			}
 
 			return -1;
