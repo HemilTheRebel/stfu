@@ -109,28 +109,6 @@ namespace stfu::impl {
 		
 
 		/**
-		 * Find the index of child with the same name in children.
-		 * If none exists, return -1
-		 */
-		int index_of(test_case *child) {
-			auto it = std::find_if(
-				children.cbegin(),
-				children.cend(),
-				[&] (const std::unique_ptr<test_case> &c) {
-				   return c->name == child->name;
-				}
-			);
-
-			bool child_exists = it != children.cend();
-			if (child_exists) {
-				return it - children.cbegin();
-			}
-
-			return -1;
-		}
-		
-
-		/**
 		 * Notifies parent that this test case's all children have been
 		 * executed. So the parent should update its next_child_to_execute.
 		 *
@@ -171,10 +149,17 @@ namespace stfu::impl {
 		 * particular cycle, this test case should be executed.
 		 */
 		void add_child(std::unique_ptr<test_case> child) {
-			int index = index_of(child.get());
-			bool child_does_not_exist = index == -1;
+			auto it = std::find_if(
+				children.cbegin(),
+				children.cend(),
+				[&] (const std::unique_ptr<test_case> &c) {
+				   return c->name == child->name;
+				}
+			);
+
+			bool child_exists = it != children.cend();
 		
-			if (child_does_not_exist) {
+			if (!child_exists) {
 				children.push_back(std::move(child));
 				index = children.size() - 1;
 			}
