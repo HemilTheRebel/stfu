@@ -43,7 +43,7 @@ paste and get going without any hurdles.
 
 # Installing
 
-Just copy and paste strous.h in your test folder
+Just copy and paste stfu.h in your test folder
 
 
 # Note
