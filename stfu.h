@@ -157,8 +157,10 @@ namespace stfu::impl {
 				}
 			);
 
-			bool child_exists = it != children.cend();
-		
+			int index = it - children.cbegin();
+
+			bool child_exists = it != children.cend();			
+			
 			if (!child_exists) {
 				children.push_back(std::move(child));
 				index = children.size() - 1;
