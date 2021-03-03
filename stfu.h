@@ -52,7 +52,7 @@
  * Contains all the implementation details. Skip to definition of test
  * to find the public contract of this library with the outside world
  */
-namespace impl {
+namespace stfu::impl {
 
 	
 	/**
@@ -270,57 +270,64 @@ namespace impl {
 		/// setting false to false achieves the same effect
 		first_execution = false;   	
 	}
+}; /// namespace stufu::impl
+
+
+/**
+ * Contains all the public functions.
+ */
+namespace stfu {
+	/**
+	 * Techically not needed. Used to make the declaration of test fit within
+	 * 80 chars
+	 */
+	using Runner = std::function<void()>;
+
+
+	/**
+	 * This is the only thing public. 
+	 *
+	 * If root is null, create a root with given name and function and return
+	 * a Runner which upon calling will execute the root test case.
+	 *
+	 * Else add the test_case as a child to the currently executing test
+	 * case
+	 */
+	inline Runner test(std::string name, std::function<void()> func) {
+		using namespace stfu::impl;	
+
+		auto child = std::make_unique<test_case>(name, func, current_test);
+	
+		if (!root) {
+			root = std::move(child);
+		
+			return [=] {
+				/// We might need multiple iterations of root to execute
+				/// all test cases as we are only executing 1 leaf at a time
+			
+				while(root->should_run()) {				
+					root->run();
+					root->cycle_complete();
+				}
+
+				/// After running all the test cases, we are resetting the nodes.
+				/// This allows the runner to be called multiple times.
+				/// I dont know why I added this functionality. It is probably
+				/// useful for fuzzing but there you go
+				///
+				/// Note this is not std::unique_ptr::reset.
+				/// This is impl::test_case::reset
+				root->reset();
+			};
+		}
+
+		/// Ensure current test is not null. There is no case in which
+		/// it should be null
+		assert(current_test != nullptr);
+
+		current_test->add_child(std::move(child));	
+		return [] {};
+	}
 };
 
 
-/**
- * Techically not needed. Used to make the declaration of test fit within
- * 80 chars
- */
-using Runner = std::function<void()>;
-
-
-/**
- * This is the only thing public. 
- *
- * If root is null, create a root with given name and function and return
- * a Runner which upon calling will execute the root test case.
- *
- * Else add the test_case as a child to the currently executing test
- * case
- */
-inline Runner test(std::string name, std::function<void()> func) {
-	using namespace impl;	
-
-	auto child = std::make_unique<test_case>(name, func, current_test);
-	
-	if (!impl::root) {
-		root = std::move(child);
-		
-		return [=] {
-			/// We might need multiple iterations of root to execute
-			/// all test cases as we are only executing 1 leaf at a time
-			
-			while(root->should_run()) {				
-				root->run();
-				root->cycle_complete();
-			}
-
-			/// After running all the test cases, we are resetting the nodes.
-			/// This allows the runner to be called multiple times.
-			/// I dont know why I added this functionality. It is probably
-			/// useful for fuzzing but there you go
-			///
-			/// Note this is not std::unique_ptr::reset.
-			/// This is impl::test_case::reset
-			root->reset();
-		};
-	}
-
-	/// Ensure current test is not null. There is no case in which
-	/// it should be null
-	assert(current_test != nullptr);
-
-	current_test->add_child(std::move(child));	
-	return [] {};
-}

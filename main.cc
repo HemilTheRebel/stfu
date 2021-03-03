@@ -1,9 +1,11 @@
 #include <iostream>
 #include <cassert>
-#include "strous.h"
+#include "stfu.h"
 
 
 int main() {
+	using namespace stfu;
+	
 	auto runner = test("Parent", [] {
 		int x = 1;
 		assert(x == 1);
