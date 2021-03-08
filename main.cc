@@ -62,4 +62,14 @@ int main() {
 	std::cout << "\n\n\n";
 	
 	runner();
+
+	runner = test("Something stupid", [] {
+		test("Something else stupid", [] {
+			std::cout << "Something stupid\n";
+		});
+	});
+
+	std::cout << "\n\n\n";
+
+	runner();
 }

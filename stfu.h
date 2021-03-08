@@ -74,10 +74,11 @@ namespace stfu::impl {
 		 * It is important to remember that STFU sees a n-ary tree of tests
 		 * So each node must know its children.
 		 *
-		 * I used std::unique_ptr to express my intent of ownership.
-		 * Parents own the children
+		 * I initially used std::unique_ptr because I assumed 
+		 * a class cannot contain a vector of its own children.
+		 * Turns out, I was wrong
 		 */
-		std::vector<std::unique_ptr<test_case>> children;
+		std::vector<test_case> children;
 
 
 		/**
@@ -109,16 +110,20 @@ namespace stfu::impl {
 		
 
 		/**
-		 * Notifies parent that this test case's all children have been
-		 * executed. So the parent should update its next_child_to_execute.
-		 *
-		 * Recursively calls this function on its parents if the test case
-		 * should not run and parent is not null. 
+		 * Increments next_child_to_execute. If this test should no more
+		 * run and parent is not null, recursively increment parent's
+		 * next_child_to_execute. 
+		 * 
+		 * This informs the parent to execute the 
+		 * next test on the next run
 		 */
-		void notify_all_children_executed() {
+		void increment_children_executed() {
 			next_child_to_execute++;
+
+			/// If the current test should no more run and parent is
+			/// not null, notify the parent to update its state
 			if (!should_run() && parent) {
-				parent->notify_all_children_executed();
+				parent->increment_children_executed();
 			}
 		}
 		
@@ -148,12 +153,12 @@ namespace stfu::impl {
 		 * It will run the child if children is empty or if in this 
 		 * particular cycle, this test case should be executed.
 		 */
-		void add_child(std::unique_ptr<test_case> child) {
+		void add_child(test_case child) {
 			auto it = std::find_if(
 				children.cbegin(),
 				children.cend(),
-				[&] (const std::unique_ptr<test_case> &c) {
-				   return c->name == child->name;
+				[&] (const test_case &c) {
+				   return c.name == child.name;
 				}
 			);
 
@@ -162,13 +167,13 @@ namespace stfu::impl {
 			bool child_exists = it != children.cend();			
 			
 			if (!child_exists) {
-				children.push_back(std::move(child));
+				children.push_back(child);
 				index = children.size() - 1;
 			}
 
 			if (index == next_child_to_execute) {
-				if (children[next_child_to_execute]->should_run()) {
-					children[next_child_to_execute]->run();				
+				if (children[next_child_to_execute].should_run()) {
+					children[next_child_to_execute].run();				
 				}
 			}
 		}
@@ -176,7 +181,11 @@ namespace stfu::impl {
 
 		/**
 		 * Specifies whether a test case should run. Test case is only 
-		 * run when should_run returns true
+		 * run when should_run returns true.
+		 *
+		 * A test should run when either -
+		 * 1. Its the first execution, or
+		 * 2. There are children left to execute
 		 */
 		bool should_run() {
 			return first_execution
@@ -203,24 +212,29 @@ namespace stfu::impl {
 		 * notifies the next_child_to_execute that a cycle has been 
 		 * completed. 
 		 *
-		 * If this is a leaf node, then notify the parent that all children
-		 * are executed. So as to updated parent's next_child_to_execute.
+		 * If this is a leaf node and parent is not null, then notify 
+		 * the parent to increment its next_child_to_execute.
 		 */
 		void cycle_complete() {
 			if (next_child_to_execute < children.size()) {
-				children[next_child_to_execute]->cycle_complete();
+				children[next_child_to_execute].cycle_complete();
 				return;
 			}
 
 			if (parent) {
-				parent->notify_all_children_executed();
+				parent->increment_children_executed();
 			}
 		}
 	};
 
 
 	/**
-	 * To execute tests, we need a pointer to the root. 
+	 * To execute tests, we need the root. 
+	 *
+	 * It is a unique_ptr because
+	 * 1. When we start, we do not have a test case to initialise root with
+	 * 2. We can have multiple root level test cases so at the end of
+	 * each root level test case we need the ability to reset 
 	 */
 	std::unique_ptr<test_case> root;
 
@@ -274,16 +288,17 @@ namespace stfu {
 	 */
 	inline Runner test(std::string name, std::function<void()> func) {
 		using namespace stfu::impl;	
-
-		auto child = std::make_unique<test_case>(name, func, current_test);
 	
 		if (!root) {
-			root = std::move(child);
-		
 			return [=] {
+				/// std::make_unique not used for C++11 compatibility
+				/// test_case constructor will never throw so its not a
+				/// big deal
+				test_case *root_test = new test_case(name, func, current_test);
+				root = std::unique_ptr<test_case>(root_test);
+			
 				/// We might need multiple iterations of root to execute
 				/// all test cases as we are only executing 1 leaf at a time
-			
 				while(root->should_run()) {				
 					root->run();
 					root->cycle_complete();
@@ -301,7 +316,7 @@ namespace stfu {
 		/// it should be null
 		assert(current_test != nullptr);
 
-		current_test->add_child(std::move(child));	
+		current_test->add_child(test_case(name, func, current_test));	
 		return [] {};
 	}
 };
