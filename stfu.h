@@ -53,7 +53,8 @@
  * Contains all the implementation details. Skip to definition of test
  * to find the public contract of this library with the outside world
  */
-namespace stfu::impl {
+namespace stfu {
+namespace impl {
 
 	
 	/**
@@ -88,7 +89,7 @@ namespace stfu::impl {
 		 * Every time a leaf node is executed, this is incremented to 
 		 * execute the next child if any
 		 */
-		int next_child_to_execute = 0;
+		size_t next_child_to_execute = 0;
 
 
 		/**
@@ -144,8 +145,8 @@ namespace stfu::impl {
 		/**
 		 * Just assigns the values given in parameters
 		 */
-		test_case(const std::string name, std::function<void()> func, test_case *parent)
-			:name(name), func(func), parent(parent) {}
+		test_case(const std::string test_name, std::function<void()> test_func, test_case *test_parent)
+			: func(test_func), parent(test_parent), name(test_name) {}
 
 
 		/**
@@ -162,7 +163,7 @@ namespace stfu::impl {
 				}
 			);
 
-			int index = it - children.cbegin();
+			auto index = size_t(it - children.cbegin());
 
 			bool child_exists = it != children.cend();			
 			
@@ -263,7 +264,8 @@ namespace stfu::impl {
 		/// setting false to false achieves the same effect
 		first_execution = false;   	
 	}
-}; /// namespace stufu::impl
+} /// namespace impl
+} /// namespace stfu
 
 
 /**
@@ -319,6 +321,6 @@ namespace stfu {
 		current_test->add_child(test_case(name, func, current_test));	
 		return [] {};
 	}
-};
+}
 
 
