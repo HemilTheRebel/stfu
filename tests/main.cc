@@ -62,6 +62,7 @@ int main() {
 
     runner();
 
+    /// implicitly also tests expect works with booleans
     runner = stfu::test("expect tests", [] {
         stfu::test("check expect failure should throw an assertion exception", [] {
             try {
@@ -70,6 +71,16 @@ int main() {
             } catch (stfu::impl::AssertionFailed& af) {
                 std::cout << af.what();
             }
+        });
+
+        stfu::test("check expect failure does not crash the program", [] {
+            std::cout << "temp" << std::endl;
+            try {
+                expect(false);
+            } catch (std::exception& e) {
+                std::cout << e.what();
+            }
+
         });
 
         stfu::test("check expect(false) works",[]{
