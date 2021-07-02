@@ -1,41 +1,39 @@
-#include "stfu.h"
 #include <iostream>
 #include <cassert>
+#include <stfu/stfu.h>
 
 
 int main() {
-    using namespace stfu;
-
     int parent = 0, child1 = 0, child2 = 0, grandchild1 = 0, grandchild2 = 0, grandchild3 = 0, grandchild4 = 0;
-    auto runner = test("Parent", [&] {
+    auto runner = stfu::test("Parent", [&] {
         std::cout << "Parent\n";
         parent++;
 
-        test("Child 1", [&] {
+        stfu::test("Child 1", [&] {
             std::cout << "Child 1\n";
             child1++;
 
-            test("Grandchild 1", [&] {
+            stfu::test("Grandchild 1", [&] {
                 std::cout << "Grand child 1\n";
                 grandchild1++;
             });
 
-            test("Grandchild 2", [&] {
+            stfu::test("Grandchild 2", [&] {
                 std::cout << "Grand child 2\n";
                 grandchild2++;
             });
         });
 
-        test("Child 2", [&] {
+        stfu::test("Child 2", [&] {
             std::cout << "Child 2\n";
             child2++;
 
-            test("Grandchild 3", [&] {
+            stfu::test("Grandchild 3", [&] {
                 std::cout << "Grand child 3\n";
                 grandchild3++;
             });
 
-            test("Grandchild 4", [&] {
+            stfu::test("Grandchild 4", [&] {
                 std::cout << "Grand child 4\n";
                 grandchild4++;
             });
@@ -56,34 +54,34 @@ int main() {
 
     assert(parent == 4);
 
-    runner = test("test runner can be reassigned", [] {
-        test("1 == 1", [] {
+    runner = stfu::test("check runner can be reassigned", [] {
+        stfu::test("1 == 1", [] {
             assert(1 == 1);
         });
     });
 
     runner();
 
-    runner = test("expect tests", [] {
-        test("test expect failure should throw an assertion exception", [] {
+    runner = stfu::test("expect tests", [] {
+        stfu::test("check expect failure should throw an assertion exception", [] {
             try {
                 expect(false == true);
                 assert(false);
-            } catch (impl::AssertionFailed& af) {
+            } catch (stfu::impl::AssertionFailed& af) {
                 std::cout << af.what();
             }
         });
 
-        test("test expect(false) works",[]{
+        stfu::test("check expect(false) works",[]{
             try {
                 expect(false);
                 assert(false);
-            } catch (impl::AssertionFailed& af) {
+            } catch (stfu::impl::AssertionFailed& af) {
                 std::cout << af.what();
             }
         });
 
-        test("test expect(true) works",[]{
+        stfu::test("check expect(true) works",[]{
             try {
                 expect(true);
             } catch (...) {
