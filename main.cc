@@ -1,75 +1,66 @@
+#include "stfu.h"
 #include <iostream>
 #include <cassert>
-#include "stfu.h"
 
 
 int main() {
 	using namespace stfu;
-	
-	auto runner = test("Parent", [] {
-		int x = 1;
-		assert(x == 1);
 
-		std::cout << "Parent: \n";
+	int parent = 0, child1 = 0, child2 = 0, grandchild1 = 0, grandchild2 = 0, grandchild3 = 0, grandchild4 = 0;
+	auto runner = test("Parent", [&] {
+	    std::cout << "Parent\n";
+		parent++;
 		
 		test("Child 1", [&] {
-			assert(x == 1);
-			x++;
-			assert(x == 2);
-			
-			std::cout << "Child 1: \n";
+            std::cout << "Child 1\n";
+			child1++;
 
 			test("Grandchild 1", [&] {
-				assert(x == 2);
-				x++;
-				assert(x == 3);
-				std::cout << "Granchild 1: \n";
+                std::cout << "Grand child 1\n";
+				grandchild1++;
 			});
 
 			test("Grandchild 2", [&] {
-				assert(x == 2);
-				x++;
-				assert(x == 3);
-				std::cout << "Granchild 2: \n";
+                std::cout << "Grand child 2\n";
+				grandchild2++;
 			});
 		});
 
 		test("Child 2", [&] {
-			assert(x == 1);
-			x += 2;
-			assert(x == 3);
+            std::cout << "Child 2\n";
+			child2++;
 
-			std::cout << "Child 2:\n";
-
-			test("Grandchild 1", [&] {
-				assert(x == 3);
-				x++;
-				assert(x == 4);
-				std::cout << "Granchild 1: \n";
+			test("Grandchild 3", [&] {
+                std::cout << "Grand child 3\n";
+				grandchild3++;
 			});
 
-			test("Grandchild 2", [&] {
-				assert(x == 3);
-				x++;
-				assert(x == 4);
-				std::cout << "Granchild 2: \n";
+			test("Grandchild 4", [&] {
+                std::cout << "Grand child 4\n";
+				grandchild4++;
 			});
 		});
 	});
 
 	runner();
 
-	std::cout << "\n\n\n";
-	
-	runner();
+	/// flush the output for debugging
+	std::cout<< std::endl;
+    assert(grandchild1 == 1);
+    assert(grandchild2 == 1);
+    assert(grandchild3 == 1);
+    assert(grandchild4 == 1);
 
-	runner = test("Something stupid", [] {
-		test("Something else stupid", [] {
-			std::cout << "Something stupid\n";
+    assert(child1 == 2);
+    assert(child2 == 2);
+
+    assert(parent == 4);
+
+	runner = test("test runner can be reassigned", [] {
+		test("1 == 1", [] {
+            assert(1 == 1);
 		});
 	});
-
-	std::cout << "\n\n\n";
 
 	runner();
 }
