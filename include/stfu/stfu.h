@@ -3,7 +3,7 @@
  * The was the end goal of this library was to be able to say this:
  *
  * ```cpp
- * auto runner = test("Parent", [] {
+ * test("Parent", [] {
  *    std::cout << "Parent\n";
  *
  *    test("Child 1", [] {
@@ -14,8 +14,6 @@
  *        std::cout << "Child 2\n";    
  *    });
  * });
- *
- * runner();
  * ```
  *
  * Outputs -
@@ -283,6 +281,38 @@ namespace stfu {
             /// setting false to false achieves the same effect
             first_execution = false;
         }
+
+        inline void run_tests(const std::string &name, const std::function<void()> &func) {
+            std::vector<std::shared_ptr<impl::test_case>> failed_tests;
+
+            /// std::make_unique not used for C++11 compatibility
+            /// test_case constructor will never throw so its not a
+            /// big deal
+            auto *root_test = new impl::test_case(name, func, impl::current_test);
+            impl::root = std::shared_ptr<impl::test_case>(root_test);
+
+            /// We might need multiple iterations of root to execute
+            /// all test cases as we are only executing 1 leaf at a time
+            while (impl::root->should_run()) {
+                try {
+                    impl::root->run();
+                } catch (std::exception &exception) {
+                    std::cout << "Exception caught\n";
+                    failed_tests.push_back(impl::root);
+                } catch (...) {
+                    std::cout << "Exception caught\n";
+                    failed_tests.push_back(impl::root);
+                }
+
+                impl::root->cycle_complete();
+            }
+
+            /// After running all the test cases, we are resetting the nodes.
+            /// This allows the runner to be called multiple times.
+            /// I dont know why I added this functionality. It is probably
+            /// useful for fuzzing but there you go
+            impl::root.reset();
+        }
     } /// namespace impl
 } /// namespace stfu
 
@@ -292,64 +322,26 @@ namespace stfu {
  */
 namespace stfu {
     /**
-     * Techically not needed. Used to make the declaration of test fit within
-     * 80 chars
-     */
-    using Runner = std::function<void()>;
-
-
-    /**
      * This is the only thing public.
      *
-     * If root is null, create a root with given name and function and return
-     * a Runner which upon calling will execute the root test case.
+     * If root is null, create a root with given name and function and
+     * executes the root test case.
      *
      * Else add the test_case as a child to the currently executing test
      * case
      */
-    inline Runner test(const std::string &name, const std::function<void()> &func) {
+    inline void test(const std::string &name, const std::function<void()> &func) {
         using namespace stfu::impl;
 
         if (!root) {
-            return [=] {
-                std::vector<std::shared_ptr<test_case>> failed_tests;
-
-                /// std::make_unique not used for C++11 compatibility
-                /// test_case constructor will never throw so its not a
-                /// big deal
-                auto *root_test = new test_case(name, func, current_test);
-                root = std::shared_ptr<test_case>(root_test);
-
-                /// We might need multiple iterations of root to execute
-                /// all test cases as we are only executing 1 leaf at a time
-                while (root->should_run()) {
-                    try {
-                        root->run();
-                    } catch (std::exception &exception) {
-                        std::cout << "Exception caught\n";
-                        failed_tests.push_back(root);
-                    } catch (...) {
-                        std::cout << "Exception caught\n";
-                        failed_tests.push_back(root);
-                    }
-
-                    root->cycle_complete();
-                }
-
-                /// After running all the test cases, we are resetting the nodes.
-                /// This allows the runner to be called multiple times.
-                /// I dont know why I added this functionality. It is probably
-                /// useful for fuzzing but there you go
-                root.reset();
-            };
+            run_tests(name, func);
+            return;
         }
 
         /// Ensure current test is not null. There is no case in which
         /// it should be null
         assert(current_test != nullptr);
-
         current_test->add_child(std::make_shared<test_case>(name, func, current_test));
-        return [] {};
     }
 }
 

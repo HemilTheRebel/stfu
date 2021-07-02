@@ -5,7 +5,7 @@
 
 int main() {
     int parent = 0, child1 = 0, child2 = 0, grandchild1 = 0, grandchild2 = 0, grandchild3 = 0, grandchild4 = 0;
-    auto runner = stfu::test("Parent", [&] {
+    stfu::test("Parent", [&] {
         std::cout << "Parent\n";
         parent++;
 
@@ -40,8 +40,6 @@ int main() {
         });
     });
 
-    runner();
-
     /// flush the output for debugging
     std::cout << std::endl;
     assert(grandchild1 == 1);
@@ -54,16 +52,14 @@ int main() {
 
     assert(parent == 4);
 
-    runner = stfu::test("check runner can be reassigned", [] {
+    stfu::test("check runner can be reassigned", [] {
         stfu::test("1 == 1", [] {
             assert(1 == 1);
         });
     });
 
-    runner();
-
     /// implicitly also tests expect works with booleans
-    runner = stfu::test("expect tests", [] {
+    stfu::test("expect tests", [] {
         stfu::test("check expect failure should throw an assertion exception", [] {
             try {
                 expect(false == true);
@@ -100,6 +96,4 @@ int main() {
             }
         });
     });
-
-    runner();
 }

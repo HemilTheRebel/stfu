@@ -4,7 +4,7 @@ STFU is Simple Testing Framework for Unit tests.
 The end goal of this library was to be able to say this:
 
 ```cpp
-auto runner = test("Parent", [] {
+test("Parent", [] {
    std::cout << "Parent\n";
 
    test("Child 1", [] {
@@ -15,8 +15,6 @@ auto runner = test("Parent", [] {
        std::cout << "Child 2\n";    
    });
 });
-
-runner();
 ```
 
 Outputs -
