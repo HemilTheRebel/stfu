@@ -50,6 +50,8 @@
 #include <algorithm>
 #include <iostream>
 
+#include "expect.h"
+
 /**
  * Contains all the implementation details. Skip to definition of test
  * to find the public contract of this library with the outside world
@@ -101,7 +103,7 @@ namespace stfu {
              * All test cases must be run at least once. Irrespective of
              * everything else. At most places, I am checking
              * if (next_child_to_execute < children.size())
-             * but this condition does't hold for the first run.
+             * but this condition does'lhs hold for the first run.
              *
              * So, we need a boolean to check if this is the first run
              */
@@ -155,7 +157,7 @@ namespace stfu {
 
 
             /**
-             * Adds a child if a child with same name doesn't already exist
+             * Adds a child if a child with same name doesn'lhs already exist
              * It will run the child if children is empty or if in this
              * particular cycle, this test case should be executed.
              */
