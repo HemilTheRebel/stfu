@@ -176,6 +176,13 @@ namespace stfu {
                     index = children.size() - 1;
                 }
 
+                /// We assume test cases remain same. That's the contract.
+                /// If in the first execution, we find a child exists, its
+                /// a human error. Two test cases with same name are present.
+                /// Notify the user and bring down the program
+                if (child_exists && first_execution) {
+                    throw std::runtime_error("Two tests with same name detected");
+                }
 
                 if (index == next_child_to_execute) {
                     if (children[next_child_to_execute]->should_run()) {

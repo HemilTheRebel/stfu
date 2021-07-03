@@ -51,6 +51,16 @@ int main() {
         });
     });
 
+    stfu::test("two tests with same name should throw runtime error", []{
+        stfu::test("abc", [] {});
+        try {
+            stfu::test("abc", [] {});
+            expect(false);
+        } catch (std::exception& e) {
+            std::cout << e.what() << '\n';
+        }
+    });
+
     /// implicitly also tests expect works with booleans
     stfu::test("expect tests", [] {
         stfu::test("check expect failure should throw an assertion exception", [] {
@@ -58,7 +68,7 @@ int main() {
                 expect(false == true);
                 assert(false);
             } catch (stfu::impl::AssertionFailed& af) {
-                std::cout << af.what();
+                std::cout << af.what() << '\n';
             }
         });
 
@@ -67,9 +77,8 @@ int main() {
             try {
                 expect(false);
             } catch (std::exception& e) {
-                std::cout << e.what();
+                std::cout << e.what() << '\n';
             }
-
         });
 
         stfu::test("check expect(false) works",[]{
@@ -77,7 +86,7 @@ int main() {
                 expect(false);
                 assert(false);
             } catch (stfu::impl::AssertionFailed& af) {
-                std::cout << af.what();
+                std::cout << af.what() << '\n';
             }
         });
 
