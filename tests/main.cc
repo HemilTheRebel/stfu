@@ -6,35 +6,28 @@
 int main() {
     int parent = 0, child1 = 0, child2 = 0, grandchild1 = 0, grandchild2 = 0, grandchild3 = 0, grandchild4 = 0;
     stfu::test("Parent", [&] {
-        std::cout << "Parent\n";
         parent++;
 
         stfu::test("Child 1", [&] {
-            std::cout << "Child 1\n";
             child1++;
 
             stfu::test("Grandchild 1", [&] {
-                std::cout << "Grand child 1\n";
                 grandchild1++;
             });
 
             stfu::test("Grandchild 2", [&] {
-                std::cout << "Grand child 2\n";
                 grandchild2++;
             });
         });
 
         stfu::test("Child 2", [&] {
-            std::cout << "Child 2\n";
             child2++;
 
             stfu::test("Grandchild 3", [&] {
-                std::cout << "Grand child 3\n";
                 grandchild3++;
             });
 
             stfu::test("Grandchild 4", [&] {
-                std::cout << "Grand child 4\n";
                 grandchild4++;
             });
         });
@@ -52,7 +45,7 @@ int main() {
 
     assert(parent == 4);
 
-    stfu::test("check runner can be reassigned", [] {
+    stfu::test("more tests can be executed", [] {
         stfu::test("1 == 1", [] {
             assert(1 == 1);
         });
