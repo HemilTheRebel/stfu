@@ -39,7 +39,7 @@ namespace stfu {
     namespace impl {
 
         /// The exception thrown by expect when assertion fails
-        class AssertionFailed : std::exception {
+        class AssertionFailed : public std::exception {
             /// Error needs to be a member variable initialized during
             /// construction because what needs a c str. If we declare
             /// error in what and call c_str, it will crash because

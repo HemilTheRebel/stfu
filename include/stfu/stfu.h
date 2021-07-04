@@ -188,11 +188,11 @@ namespace stfu {
                     if (children[next_child_to_execute]->should_run()) {
                         try {
                             children[next_child_to_execute]->run();
-                        } catch (std::exception &exception) {
-                            std::cout << "Exception caught\n";
+                        } catch (std::exception &e) {
+                            std::cout << e.what() << '\n';
 //                            failed_tests.push_back(root);
                         } catch (...) {
-                            std::cout << "Exception caught\n";
+                            std::cout << "Unknown exception caught\n";
 //                            failed_tests.push_back(root);
                         }
 
