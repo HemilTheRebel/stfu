@@ -161,7 +161,7 @@ namespace stfu {
                         try {
                             children[next_child_to_execute]->run();
                         } catch (std::exception &e) {
-                            std::cout << e.what() << '\n';
+                            std::cout << name << " failed: " << e.what() << '\n';
 //                            failed_tests.push_back(root);
                         } catch (...) {
                             std::cout << "Unknown exception caught\n";
@@ -276,10 +276,10 @@ namespace stfu {
                 try {
                     impl::root->run();
                 } catch (std::exception &exception) {
-                    std::cout << "Exception caught\n";
+                    std::cout << name << " failed: " << exception.what() << '\n';
                     failed_tests.push_back(impl::root);
                 } catch (...) {
-                    std::cout << "Exception caught\n";
+                    std::cout << "Unknown exception caught\n";
                     failed_tests.push_back(impl::root);
                 }
 

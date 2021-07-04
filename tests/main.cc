@@ -99,4 +99,8 @@ int main() {
             }
         });
     });
+
+    stfu::test("just trying to see the error message when test fails", []{
+        expect(false);
+    });
 }
