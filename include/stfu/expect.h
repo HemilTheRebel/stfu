@@ -52,8 +52,9 @@ namespace stfu {
         public:
             AssertionFailed(std::string actualExpression, std::string actual,
                             std::string file, int line)
-                    : error("Assertion Failed. Expression: " + std::move(actualExpression) +
-                            "\nActual: " + std::move(actual) + '\n'
+                    : error("Assertion Failed.\n"
+                            "Expression: " + std::move(actualExpression) + '\n' +
+                            "Actual: " + std::move(actual) + '\n'
                             + std::move(file) + ':' + std::to_string(line) + '\n') {}
 
             const char *what() const noexcept override {
