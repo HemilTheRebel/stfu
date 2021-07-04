@@ -1,3 +1,6 @@
+#ifndef STFU_STFU_H
+#define STFU_STFU_H
+
 #include <string>
 #include <functional>
 #include <utility>
@@ -9,6 +12,16 @@
 
 #include "expect.h"
 
+namespace stfu {
+    /// int is a dummy return value. You are free to ignore this for
+    /// single file test cases. But we need to assign some value to
+    /// a static variable to be able to call a function in another
+    /// translation unit automatically on executing
+    int test(const std::string &name, const std::function<void()> &func);
+}
+
+/// Implementation details. Subject to change
+#ifdef STFU_IMPL
 /**
  * Contains all the implementation details. Skip to definition of test
  * to find the public contract of this library with the outside world
@@ -234,7 +247,7 @@ namespace stfu {
         /**
          * Runs the test
          */
-        inline void test_case::run() {
+        void test_case::run() {
             /// Update impl::current_test because we are running now.
             /// So all nested tests are our children.
             impl::current_test = this;
@@ -248,7 +261,7 @@ namespace stfu {
             first_execution = false;
         }
 
-        inline void run_tests(const std::string &name, const std::function<void()> &func) {
+        void run_tests(const std::string &name, const std::function<void()> &func) {
             std::vector<std::shared_ptr<impl::test_case>> failed_tests;
 
             /// std::make_unique not used for C++11 compatibility
@@ -280,35 +293,22 @@ namespace stfu {
             impl::root.reset();
         }
     } /// namespace impl
-} /// namespace stfu
 
-
-/**
- * Contains all the public functions.
- */
-namespace stfu {
-    /**
-     * This is the only thing public.
-     *
-     * If root is null, create a root with given name and function and
-     * executes the root test case.
-     *
-     * Else add the test_case as a child to the currently executing test
-     * case
-     */
-    inline void test(const std::string &name, const std::function<void()> &func) {
+    int test(const std::string &name, const std::function<void()> &func) {
         using namespace stfu::impl;
 
         if (!root) {
             run_tests(name, func);
-            return;
+            return 0;
         }
 
         /// Ensure current test is not null. There is no case in which
         /// it should be null
         assert(current_test != nullptr);
         current_test->add_child(std::make_shared<test_case>(name, func, current_test));
+        return 0;
     }
-}
+} /// namespace stfu
+#endif /// end if for STFU_IMPL
 
-
+#endif //STFU_STFU_H

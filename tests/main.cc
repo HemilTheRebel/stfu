@@ -1,3 +1,4 @@
+#define STFU_IMPL
 #include <iostream>
 #include <cassert>
 #include <stfu/stfu.h>

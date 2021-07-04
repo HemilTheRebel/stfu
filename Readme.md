@@ -48,7 +48,7 @@ Just copy and paste include/stfu folder in your test folder
   (Only one needed so far)
 - [X] No dependencies
 - [X] Header only
-- [ ] Multi translation unit support
+- [X] Multi translation unit support
 
 # Note
 

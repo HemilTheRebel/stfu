@@ -11,6 +11,6 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
-add_executable(stfu tests/main.cc include/stfu/stfu.h include/stfu/expect.h)
+add_executable(stfu tests/main.cc include/stfu/stfu.h include/stfu/expect.h tests/main2.cpp tests/main3.cpp)
 target_include_directories(stfu PRIVATE include/)
 

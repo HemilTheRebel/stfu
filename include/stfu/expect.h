@@ -5,6 +5,9 @@
 #ifndef STFU_EXPECT_H
 #define STFU_EXPECT_H
 
+/// Basically everything in this header needs to be public
+/// So, we are not checking if STFU_IMPL is defined
+
 #include <exception>
 #include <string>
 #include <utility>
@@ -197,7 +200,7 @@ namespace stfu {
             }
         };
 
-        std::ostream &operator<<(std::ostream &os, const CaptureLHSAndDebugInfo &e) {
+        inline std::ostream &operator<<(std::ostream &os, const CaptureLHSAndDebugInfo &e) {
             os << e.actualExpression << '\n';
             return os;
         }
