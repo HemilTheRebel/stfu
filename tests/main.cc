@@ -1,4 +1,5 @@
 #define STFU_IMPL
+
 #include <iostream>
 #include <cassert>
 #include <stfu/stfu.h>
@@ -52,12 +53,12 @@ int main() {
         });
     });
 
-    stfu::test("two tests with same name should throw runtime error", []{
+    stfu::test("two tests with same name should throw runtime error", [] {
         stfu::test("abc", [] {});
         try {
             stfu::test("abc", [] {});
             expect(false);
-        } catch (std::exception& e) {
+        } catch (std::exception &e) {
             std::cout << e.what() << '\n';
         }
     });
@@ -68,7 +69,7 @@ int main() {
             try {
                 expect(false == true);
                 assert(false);
-            } catch (stfu::impl::AssertionFailed& af) {
+            } catch (stfu::impl::AssertionFailed &af) {
                 std::cout << af.what() << '\n';
             }
         });
@@ -77,21 +78,21 @@ int main() {
             std::cout << "temp" << std::endl;
             try {
                 expect(false);
-            } catch (std::exception& e) {
+            } catch (std::exception &e) {
                 std::cout << e.what() << '\n';
             }
         });
 
-        stfu::test("check expect(false) works",[]{
+        stfu::test("check expect(false) works", [] {
             try {
                 expect(false);
                 assert(false);
-            } catch (stfu::impl::AssertionFailed& af) {
+            } catch (stfu::impl::AssertionFailed &af) {
                 std::cout << af.what() << '\n';
             }
         });
 
-        stfu::test("check expect(true) works",[]{
+        stfu::test("check expect(true) works", [] {
             try {
                 expect(true);
             } catch (...) {
@@ -100,7 +101,25 @@ int main() {
         });
     });
 
-    stfu::test("just trying to see the error message when test fails", []{
+    stfu::test("just trying to see the error message when test fails", [] {
         expect(false);
+    });
+
+    stfu::test("expectThrows tests", [] {
+        stfu::test("expectThrows does nothing when exception of the given type is thrown", [] {
+            expectThrows(int, [] { throw 0; });
+            std::cout << "expectThrows caught the exception\n";
+        });
+
+        stfu::test("expectThrows throws AssertionFailure when the callable does not throw the object of the right type", [] {
+            try {
+                expectThrows(std::string, [] { throw 0; });
+                expect(false);
+            } catch (stfu::impl::AssertionFailed& e) {
+                std::cout << e.what() << '\n';
+                expect(e.expected == "std::string");
+                expect(e.actual == "unknown");
+            }
+        });
     });
 }

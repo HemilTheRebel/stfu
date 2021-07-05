@@ -291,6 +291,7 @@ namespace stfu {
             /// I dont know why I added this functionality. It is probably
             /// useful for fuzzing but there you go
             impl::root.reset();
+            impl::current_test = nullptr;
         }
     } /// namespace impl
 

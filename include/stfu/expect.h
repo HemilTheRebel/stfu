@@ -42,19 +42,21 @@ namespace stfu {
     namespace impl {
 
         /// The exception thrown by expect when assertion fails
-        class AssertionFailed : public std::exception {
+        struct AssertionFailed : public std::exception {
             /// Error needs to be a member variable initialized during
             /// construction because what needs a c str. If we declare
             /// error in what and call c_str, it will crash because
             /// by the time the pointer will be used, the string would
             /// be destroyed causing a crash
-            const std::string error;
-        public:
-            AssertionFailed(std::string actualExpression, std::string actual,
+            const std::string expected, actual, error;
+
+            AssertionFailed(std::string expected, std::string actual,
                             std::string file, int line)
-                    : error("Assertion Failed.\n"
-                            "Expression: " + std::move(actualExpression) + '\n' +
-                            "Actual: " + std::move(actual) + '\n'
+                    : expected(std::move(expected)),
+                    actual(std::move(actual)),
+                    error("Assertion Failed.\n"
+                            "Expected: " + this->expected + '\n' +
+                            "Actual: " + this->actual + '\n'
                             + std::move(file) + ':' + std::to_string(line) + '\n') {}
 
             const char *what() const noexcept override {
@@ -205,8 +207,23 @@ namespace stfu {
             os << e.actualExpression << '\n';
             return os;
         }
+
+        template <typename T>
+        void expectThrows(const std::function<void()>& func, const char* stringified_type, const char* file, int line) {
+            try {
+                func();
+            } catch (T& t) {
+
+            } catch (...) {
+                throw AssertionFailed(stringified_type, "unknown", file, line);
+            }
+        }
     } /// namespace impl
-} /// namespace stfu
 
 #define expect(condition) (stfu::impl::CaptureLHSAndDebugInfo(#condition, __FILE__, __LINE__) << condition) // NOLINT(bugprone-macro-parentheses)
+#define expectThrows(type, func) stfu::impl::expectThrows<type>(func, #type, __FILE__, __LINE__)
+
+} /// namespace stfu
+
+
 #endif //STFU_EXPECT_H
