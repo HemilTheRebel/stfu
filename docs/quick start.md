@@ -82,3 +82,35 @@ to report failure. For example, the following never fails
 expect(1);
 expect(true);
 ```
+
+## Expect throws
+Sometimes we want to check if a certain function throws a certain
+exception. Like say a function should throw an exception on invalid input.
+You can manually test that using this:
+```cpp
+try {
+    // code that throws the exception
+    expect(false);
+} catch (exception_type& e) {
+    
+} catch (...) {
+    expect(false);
+}
+```
+
+But this happens frequent enough that I decided to provide a wrapper.
+Here is an example: 
+```cpp
+stfu::test("vector::at throws std::out_of_range when 0th element is accessed on an empty vector", []{
+    std::vector<int> a;
+    expectThrows(std::out_of_range, [&] {
+        expect(a.at(0) == 10);
+    });
+});
+```
+Outputs nothing. But if we comment the expect line, we get:
+```
+vector::at throws std::out_of_range when 0th element is accessed on an empty vector failed: Assertion Failed.
+Expected: std::out_of_range
+Actual: no exception thrown
+```
