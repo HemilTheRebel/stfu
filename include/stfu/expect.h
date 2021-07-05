@@ -154,7 +154,7 @@ namespace stfu {
                 } else {
                     /// We could have implemented == in terms of != but that would
                     /// mean custom types would have to implement both
-                    throw AssertionFailed(expression, stfu_debug_string(lhs) + " != " + stfu_debug_string(rhs), file, line);
+                    throw AssertionFailed("true", stfu_debug_string(lhs) + " != " + stfu_debug_string(rhs), file, line);
                 }
             }
 
@@ -163,7 +163,7 @@ namespace stfu {
                 used = true;
                 if (lhs != rhs) {
                 } else {
-                    throw AssertionFailed(expression, stfu_debug_string(lhs) + " == " + stfu_debug_string(rhs), file, line);
+                    throw AssertionFailed("true", stfu_debug_string(lhs) + " == " + stfu_debug_string(rhs), file, line);
                 }
             }
 
@@ -183,7 +183,7 @@ namespace stfu {
             /// destructors are noexcept by default
             ~Expression() noexcept(false) {
                 if (!used && !lhs) {
-                    throw AssertionFailed(expression, stfu_debug_string(lhs), file, line);
+                    throw AssertionFailed("true", stfu_debug_string(lhs), file, line);
                 }
             }
         };
