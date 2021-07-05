@@ -125,5 +125,17 @@ int main() {
                 expect(e.actual == "unknown");
             }
         });
+
+        stfu::test("expectThrows throws AssertionFailed when the callable does not throw", [] {
+            try {
+                std::vector<int> a;
+                expectThrows(std::out_of_range, [&] {});
+                expect(false);
+            } catch (stfu::impl::AssertionFailed& e) {
+                std::cout << e.what() << '\n';
+            } catch (...) {
+                expect(false);
+            }
+        });
     });
 }

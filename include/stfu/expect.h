@@ -207,21 +207,29 @@ namespace stfu {
             os << e.actualExpression << '\n';
             return os;
         }
-
-        template <typename T>
-        void expectThrows(const std::function<void()>& func, const char* stringified_type, const char* file, int line) {
-            try {
-                func();
-            } catch (T& t) {
-
-            } catch (...) {
-                throw AssertionFailed(stringified_type, "unknown", file, line);
-            }
-        }
     } /// namespace impl
 
 #define expect(condition) (stfu::impl::CaptureLHSAndDebugInfo(#condition, __FILE__, __LINE__) << condition) // NOLINT(bugprone-macro-parentheses)
-#define expectThrows(type, func) stfu::impl::expectThrows<type>(func, #type, __FILE__, __LINE__)
+#define expectThrows(type, func) stfu::impl::expectThrowsFunc<type>(func, #type, __FILE__, __LINE__)
+
+namespace impl {
+    template <typename T>
+    void expectThrowsFunc(const std::function<void()>& func, const char* stringified_type, const char* file, int line) {
+            try {
+                func();
+                throw AssertionFailed(stringified_type, "no exception thrown", file, line);
+            } catch (T& t) {
+
+            } catch (AssertionFailed& e) {
+                throw;
+            }
+            catch (std::exception& e) {
+                throw AssertionFailed(stringified_type, e.what(), file, line);
+            } catch (...) {
+                throw AssertionFailed(stringified_type, "unknown", file, line);
+            }
+    }
+}
 
 } /// namespace stfu
 
