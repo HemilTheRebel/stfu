@@ -8,8 +8,7 @@ Here is a sample test case:
 
 ```c++
 #define STFU_IMPL
-#include
-"stfu/stfu.h"
+#include "stfu/stfu.h"
 
 int main() {
    stfu::test("parent",[] {
@@ -114,3 +113,77 @@ vector::at throws std::out_of_range when 0th element is accessed on an empty vec
 Expected: std::out_of_range
 Actual: no exception thrown
 ```
+
+## Tests spread out into multiple cpp files
+STFU supports tests in multiple cpp files. The way to do this is to
+define `STFU_IMPL` in the file containing main. And then including the
+stfu headers. In all other files, include the header without defining
+`STFU_IMPL`. 
+
+Let's have a look at an example.
+
+main.cpp:
+```cpp
+#define STFU_IMPL
+#include "stfu/stfu.h"
+#include <iostream>
+
+int main() {
+   stfu::test("main.cpp",[] {
+      std::cout << "I am in main.cpp\n"; 
+   });
+}
+```
+
+main2.cpp:
+```cpp
+#include "stfu/stfu.h"
+
+static int dummy = stfu::test("main2.cpp", [] {
+    std::cout << "I am in main2.cpp\n";
+});
+```
+
+main3.cpp:
+```cpp
+#include "stfu/stfu.h"
+
+static int dummy = stfu::test("test if printing works", [] {
+    std::cout << "I am in main3.cpp\n";
+});
+```
+
+These three files compiled and linked together produces the output:
+```
+I am in main2.cpp
+I am in main3.cpp
+I am in main.cpp
+```
+
+The reason main2 and main3 are printed before main.cpp is that static 
+variables are guaranteed to be initialized before main is run. 
+if you want to follow the same pattern in all the files, you can rewrite
+main to be:
+```cpp
+#define STFU_IMPL
+#include "stfu/stfu.h"
+#include <iostream>
+
+static int dummy = stfu::test("main.cpp",[] {
+    std::cout << "I am in main.cpp\n";
+});
+
+int main() {}
+```
+
+**Note:**
+1. The order in which the tests in different files are run is not 
+   determined. It is not undefined behaviour to have static variables
+   in different files. It is undefined behaviour however for one of 
+   that static variable to depend on another. You can search "static
+   initialization order fiasco" to know more
+2. It is fine for the same variable to be declared in mutliple files
+   because they are static. And static also means they are internal to 
+   given file (translation unit to be specific)
+3. You cannot depend on the order in which the tests are run in this 
+   case.
