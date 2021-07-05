@@ -99,6 +99,10 @@ int main() {
                 assert(false);
             }
         });
+
+        stfu::test("expect 1 succeeds", [] {
+            expect(1);
+        });
     });
 
     stfu::test("just trying to see the error message when test fails", [] {
